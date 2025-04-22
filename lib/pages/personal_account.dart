@@ -9,7 +9,7 @@ class PersonalAccount extends StatefulWidget {
 }
 
 class _PersonalAccountState extends State<PersonalAccount> {
-  Map<String,dynamic> account = {};
+  Map<String, dynamic> account = {};
 
   @override
   void initState() {
@@ -19,8 +19,9 @@ class _PersonalAccountState extends State<PersonalAccount> {
   }
 
   Future<void> _loadData() async {
-    setState((){
-      account = await Account.getAccount();
+    account = await Account.getAccount();
+    setState(() {
+      account;
     });
   }
 
@@ -61,14 +62,37 @@ class _PersonalAccountState extends State<PersonalAccount> {
                     ],
                   ),
                 ),
-                Container(child: Column(
-                  spacing: 15.0,
-                  children: [
-                  _fieldPersonalAccount('name','Username',Icon(Icons.account_box_sharp),account),
-                  _fieldPersonalAccount('fullname','Full Name',Icon(Icons.account_box_sharp),account),
-                  _fieldPersonalAccount('email','Email',Icon(Icons.email_rounded),account),
-                  _fieldPersonalAccount('phone','Phone',Icon(Icons.phone_enabled_rounded),account),
-                  ])),
+                Container(
+                  child: Column(
+                    spacing: 15.0,
+                    children: [
+                      _fieldPersonalAccount(
+                        'name',
+                        'Username',
+                        Icon(Icons.account_box_sharp),
+                        account,
+                      ),
+                      _fieldPersonalAccount(
+                        'fullname',
+                        'Full Name',
+                        Icon(Icons.account_box_sharp),
+                        account,
+                      ),
+                      _fieldPersonalAccount(
+                        'email',
+                        'Email',
+                        Icon(Icons.email_rounded),
+                        account,
+                      ),
+                      _fieldPersonalAccount(
+                        'phone',
+                        'Phone',
+                        Icon(Icons.phone_enabled_rounded),
+                        account,
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
@@ -79,27 +103,30 @@ class _PersonalAccountState extends State<PersonalAccount> {
                 padding: EdgeInsets.all(10.0),
                 decoration: BoxDecoration(
                   color: Colors.blueAccent.shade400,
-                  borderRadius: BorderRadius.circular(10.0)
+                  borderRadius: BorderRadius.circular(10.0),
                 ),
                 child: InkWell(
-                  onTap: () async{
+                  onTap: () async {
                     print('Starting Save Account');
-                    if(await Account.updateProfile(account)){
+                    if (await Account.updateProfile(account)) {
                       print('Succesfully update profile account');
+                      print(await Account.getAccount());
                     }
                   },
-                  child: Text('Save & Changes', style : TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Poppins',
-                    fontSize: 18.0
-                  ),
+                  child: Text(
+                    'Save & Changes',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Poppins',
+                      fontSize: 18.0,
+                    ),
                     textAlign: TextAlign.center,
                   ),
                 ),
               ),
             ],
-          )
+          ),
         ],
       ),
     );
@@ -109,7 +136,7 @@ class _PersonalAccountState extends State<PersonalAccount> {
     String fieldname,
     String fieldname1,
     Icon icon,
-    Map<String,dynamic> account,
+    Map<String, dynamic> account,
   ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -124,7 +151,7 @@ class _PersonalAccountState extends State<PersonalAccount> {
         ),
         SizedBox(height: 5.5),
         TextField(
-          controller: TextEditingController(text : account[fieldname]),
+          controller: TextEditingController(text: account[fieldname]),
           decoration: InputDecoration(
             prefixIcon: icon,
             border: OutlineInputBorder(

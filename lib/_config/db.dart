@@ -8,7 +8,7 @@ class DBConnection {
       userName: Environment.username,
       password: Environment.password,
       databaseName: Environment.database,
-      port: int.parse(Environment.port),
+      port: 22924,
     );
     await conn.connect();
     return conn;
