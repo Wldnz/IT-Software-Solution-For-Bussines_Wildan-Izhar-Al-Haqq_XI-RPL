@@ -17,7 +17,6 @@ class Products {
 
       return products;
     } catch (error) {
-      print('Error fetching products: $error');
       return []; // return empty kalau error
     }
   }
@@ -31,10 +30,10 @@ class Products {
       var category = product['category'];
       var price = int.parse(product['price']);
       var stock = double.parse(product['stock']);
-      var image_url = product['image_url'];
+      var imageUrl = product['image_url'];
       var currentTimeStamp = DateTime.now().millisecondsSinceEpoch;
       var result = await connection.execute(
-        "INSERT INTO products VALUES(NULL,'$name','$description','$category','$price','$stock','$image_url','$currentTimeStamp','$currentTimeStamp','public')",
+        "INSERT INTO products VALUES(NULL,'$name','$description','$category','$price','$stock','$imageUrl','$currentTimeStamp','$currentTimeStamp','public')",
       );
 
       connection.close();
@@ -45,7 +44,6 @@ class Products {
       return false;
     } catch (error) {
       History.createHistory('Failed When Want To Insert Product');
-      print('Error fetching products: $error');
       return false; // return empty kalau error
     }
   }
@@ -58,14 +56,14 @@ class Products {
       var description = product['description'];
       var price = product['price'];
       var stock = product['stock'];
-      var image_url = product['image_url'];
+      var imageUrl = product['image_url'];
       var result = await connection.execute(
-        "UPDATE products SET name='$name', description='$description', price='$price', stock='$stock', image_url='$image_url' where id='$id'",
+        "UPDATE products SET name='$name', description='$description', price='$price', stock='$stock', image_url='$imageUrl' where id='$id'",
       );
 
       if (result.affectedRows > BigInt.zero) {
         await connection.close(); // tutup koneksi
-        History.createHistory('Successfully When Want To Update Product $name');
+        History.createHistory('Successfully Update Product $name');
         return true;
       }
 
@@ -73,7 +71,6 @@ class Products {
 
       return false;
     } catch (error) {
-      print('Error fetching products: $error');
       History.createHistory('Failed When Want To Update Product');
       return false; // return empty kalau error
     }
@@ -96,8 +93,6 @@ class Products {
 
       return false;
     } catch (error) {
-      print('Error fetching products: $error');
-      History.createHistory('Failed When Delete Product');
       return false; // return empty kalau error
     }
   }
@@ -122,7 +117,6 @@ class Products {
 
       return products;
     } catch (error) {
-      print('Error fetching products: $error');
       return [];
     }
   }

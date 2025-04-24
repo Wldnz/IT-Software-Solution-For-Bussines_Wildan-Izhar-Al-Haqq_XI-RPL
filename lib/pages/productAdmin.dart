@@ -33,7 +33,7 @@ class _ProductAdminState extends State<ProductAdmin> {
                 Row(
                   spacing: 10.0,
                   children: [
-                    Container(
+                    SizedBox(
                       width: MediaQuery.of(context).size.width - 100,
                       child: TextField(
                         style: TextStyle(fontFamily: 'Poppins'),
@@ -48,9 +48,12 @@ class _ProductAdminState extends State<ProductAdmin> {
                           hintText: 'Search Any here...',
                           // hintStyle: TextStyle(color: const Color(0xDFDFDFDF)),
                         ),
-                        onSubmitted: (String value){
+                        onSubmitted: (String value) {
                           setState(() {
-                            products = value.length > 0? Products.getProductByName(value) as Future : products = Products.getProducts();
+                            products =
+                                value.isNotEmpty
+                                    ? Products.getProductByName(value) as Future
+                                    : products = Products.getProducts();
                           });
                         },
                       ),
@@ -65,7 +68,7 @@ class _ProductAdminState extends State<ProductAdmin> {
                     ),
                   ],
                 ),
-                Container(
+                SizedBox(
                   width: MediaQuery.of(context).size.width,
                   // height: 200,
                   child: FutureBuilder(
@@ -88,7 +91,7 @@ class _ProductAdminState extends State<ProductAdmin> {
                               itemBuilder: (context, index) {
                                 var product = data[index];
                                 return InkWell(
-                                  child: ProductCard(
+                                  child: productCard(
                                     product['name'],
                                     int.parse(product['price']),
                                     int.parse(product['stock']),
@@ -133,14 +136,14 @@ class _ProductAdminState extends State<ProductAdmin> {
     );
   }
 
-  Card ProductCard(String name, int price, int stock, String image_url) {
+  Card productCard(String name, int price, int stock, String imageUrl) {
     return Card(
       color: const Color.fromARGB(255, 241, 240, 240),
-      child: Container(
+      child: SizedBox(
         width: 400.0,
         child: Column(
           children: [
-            Image(image: NetworkImage(image_url), width: 380),
+            Image(image: NetworkImage(imageUrl), width: 380),
             Container(
               padding: EdgeInsets.all(15.0),
               child: Column(

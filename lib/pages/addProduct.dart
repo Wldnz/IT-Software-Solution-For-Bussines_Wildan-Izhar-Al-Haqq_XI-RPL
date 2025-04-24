@@ -1,13 +1,9 @@
-import 'dart:ffi';
 import 'dart:io';
 
-import 'package:cloudinary/cloudinary.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:my_app/_Utils/Products.dart';
 import 'package:my_app/_Utils/env.dart';
-import 'package:my_app/_Utils/product.dart';
-
 
 class AddProduct extends StatefulWidget {
   const AddProduct({super.key});
@@ -21,11 +17,11 @@ class _AddProductState extends State<AddProduct> {
   File? _imagePath;
 
   Map<String, dynamic> product = {
-    "name" : "",
-    "description" : "",
-    "category" : "",
-    "price" : "0",
-    "stock" : "0",
+    "name": "",
+    "description": "",
+    "category": "",
+    "price": "0",
+    "stock": "0",
   };
 
   final cloudinary = Environment.cloudinary;
@@ -42,9 +38,7 @@ class _AddProductState extends State<AddProduct> {
         _imagePath = filePath;
         product['image'] = filePath;
       });
-    } catch (error) {
-      print(error);
-    }
+    } catch (error) {}
   }
 
   @override
@@ -59,20 +53,21 @@ class _AddProductState extends State<AddProduct> {
             child: Column(
               children: [
                 SizedBox(height: 20.0),
-                Container(
+                SizedBox(
                   width: MediaQuery.of(context).size.width / 2 + 100,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     spacing: 10.0,
                     children: [
-                      _imagePath != null || product['image'] is File?
-                        Image.file(
-                          _imagePath ?? product['image'] as File,
-                          width: 200.0,
-                          height: 200.0,
-                          fit: BoxFit.fill,
-                        ) : Text('Please Select An Image From Your Gallery'),
+                      _imagePath != null || product['image'] is File
+                          ? Image.file(
+                            _imagePath ?? product['image'] as File,
+                            width: 200.0,
+                            height: 200.0,
+                            fit: BoxFit.fill,
+                          )
+                          : Text('Please Select An Image From Your Gallery'),
                       InkWell(
                         onTap: () => selectImageFromGallery(),
                         child: Container(
@@ -108,12 +103,7 @@ class _AddProductState extends State<AddProduct> {
                       'Description',
                       product,
                     ),
-                    textFieldProduct(
-                      context,
-                      'Category',
-                      'Category',
-                      product,
-                    ),
+                    textFieldProduct(context, 'Category', 'Category', product),
                     textFieldProduct(
                       context,
                       'Price',
@@ -145,7 +135,7 @@ class _AddProductState extends State<AddProduct> {
               ],
             ),
           ),
-          SizedBox(height: 50,)
+          SizedBox(height: 50),
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -156,35 +146,34 @@ class _AddProductState extends State<AddProduct> {
             builder:
                 (ctx) => AlertDialog(
                   title: Text('Are You Sure Want To Create Product?'),
-                  content: Text('If you sure, please wait a few seconds (it depends on your internet)'),
+                  content: Text(
+                    'If you sure, please wait a few seconds (it depends on your internet)',
+                  ),
                   actions: [
                     TextButton(
-                      onPressed: () async{
+                      onPressed: () async {
                         Navigator.of(ctx).pop();
-                        if(_image != null){
-                          try{
+                        if (_image != null) {
+                          try {
                             var uploudImage = await cloudinary.upload(
-                            file: _image!.path,
-                            fileBytes: await _image!.readAsBytes(),
-                            folder: 'inventoryz',
-                            fileName: DateTime(20205).timeZoneName + _image!.name,
-                          );
-                          print('berhasil uployd image');
-                          product['image_url'] = uploudImage.secureUrl;
-                          }catch(error){
-                            print(error);
-                          }
-                        }                       
-                        if(await Products.insertProduct(product)){
-                          print('Succesfully insert product');
+                              file: _image!.path,
+                              fileBytes: await _image!.readAsBytes(),
+                              folder: 'inventoryz',
+                              fileName:
+                                  DateTime(20205).timeZoneName + _image!.name,
+                            );
+                            product['image_url'] = uploudImage.secureUrl;
+                          } catch (error) {}
+                        }
+                        if (await Products.insertProduct(product)) {
                           setState(() {
-                            this.product = {
-                            "name" : "",
-                            "description" : "",
-                            "category" : "",
-                            "price" : "0",
-                            "stock" : "0",
-                          };
+                            product = {
+                              "name": "",
+                              "description": "",
+                              "category": "",
+                              "price": "0",
+                              "stock": "0",
+                            };
                           });
                         }
                       },
@@ -213,6 +202,7 @@ class _AddProductState extends State<AddProduct> {
     Map<String, dynamic> product, [
     icon,
   ]) {
+    // ignore: sized_box_for_whitespace
     return Container(
       width: MediaQuery.of(context).size.width - 30,
       child: Column(
@@ -234,7 +224,8 @@ class _AddProductState extends State<AddProduct> {
                 text: product[fieldName.toLowerCase()].toString(),
               ),
               keyboardType:
-                  fieldName.toLowerCase() == "stock" || fieldName.toLowerCase() == "price"
+                  fieldName.toLowerCase() == "stock" ||
+                          fieldName.toLowerCase() == "price"
                       ? TextInputType.number
                       : TextInputType.text,
               decoration: InputDecoration(
@@ -252,6 +243,11 @@ class _AddProductState extends State<AddProduct> {
                 hintText: "$hintText here...",
                 hintStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
               ),
+              onSubmitted: (String value) {
+                setState(() {
+                  product[fieldName.toLowerCase()];
+                });
+              },
               onChanged: (String value) {
                 if (product[fieldName.toLowerCase()] is int) {
                   product[fieldName.toLowerCase()] =
@@ -274,29 +270,31 @@ class _AddProductState extends State<AddProduct> {
       elevation: 0.0,
       automaticallyImplyLeading: false,
       leading: InkWell(
-        onTap : (){
-          showDialog(context: context, builder: (context) => AlertDialog(
-            title: Text('Are You Sure Want To Leave it?'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  Navigator.pop(context);
-                },
-                child: Text('Yes'),
-              ),
-              TextButton(
+        onTap: () {
+          showDialog(
+            context: context,
+            builder:
+                (context) => AlertDialog(
+                  title: Text('Are You Sure Want To Leave it?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        Navigator.pop(context);
+                      },
+                      child: Text('Yes'),
+                    ),
+                    TextButton(
                       onPressed: () {
                         Navigator.of(context).pop();
                       },
                       child: Text('Cancel'),
                     ),
-            ],
-          ));
+                  ],
+                ),
+          );
         },
-        child : Icon(Icons.arrow_back,
-        size : 30.0)
-        ,
+        child: Icon(Icons.arrow_back, size: 30.0),
       ),
     );
   }

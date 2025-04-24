@@ -14,7 +14,6 @@ class _AllHistoryState extends State<AllHistory> {
 
   @override
   void initState() {
-    // TODO: implement initState
     _loadData();
     super.initState();
   }
@@ -64,7 +63,7 @@ class _AllHistoryState extends State<AllHistory> {
                       borderRadius: BorderRadius.circular(10.0),
                       boxShadow: [
                         BoxShadow(
-                          color: Color(0xDFDFDF),
+                          color: Color(0xDFDFDFDF),
                           offset: Offset(2.0, 1.0),
                         ),
                       ],
@@ -76,20 +75,29 @@ class _AllHistoryState extends State<AllHistory> {
                           historys[index]['action'],
                           style: TextStyle(
                             fontWeight: FontWeight.normal,
-                            fontSize: 16.0,
+                            fontSize: 14.0,
                             fontFamily: 'Poppins',
                           ),
                         ),
+                        SizedBox(height: 10.0),
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
+                            Text(
+                              'Action by ${historys[index]['name']}',
+                              style: TextStyle(
+                                fontWeight: FontWeight.normal,
+                                fontSize: 12.0,
+                                fontFamily: 'Poppins',
+                              ),
+                            ),
                             Text(
                               DateTime.fromMillisecondsSinceEpoch(
                                 int.parse(historys[index]['created_at']),
                               ).toString(),
                               style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14.0,
+                                fontWeight: FontWeight.w200,
+                                fontSize: 10.0,
                                 fontFamily: 'Poppins',
                               ),
                             ),

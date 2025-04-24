@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:my_app/_Utils/Account.dart';
-import 'package:my_app/_Utils/products.dart';
+import 'package:my_app/_Utils/history.dart';
 import 'package:my_app/_Utils/transaction.dart';
 import 'package:my_app/components/navigation.dart';
-import 'package:my_app/pages/productAdmin.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -12,26 +10,28 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
-  String name = 'wildan';
-
-  int _currentIndex = 0;
-
   var transactions = [];
+  var activities = [];
 
   @override
-  void initState(){
-    // TODO: implement initState
+  void initState() {
     _loadTransaction();
     super.initState();
   }
 
   Future<void> _loadTransaction() async {
     transactions = await Transaction.getTransactionLast30Days();
+    activities = await History.getHistorys();
+    setState(() {});
   }
 
   @override
-  Widget build(BuildContext context){
-    
+  void dispose() {
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       // appBar: AppBar(title: Text('hall0o')),
       body: Container(
@@ -68,7 +68,7 @@ class _DashboardState extends State<Dashboard> {
                 children: [
                   statistic(transactions.length, 'Transaction'),
                   statistic(5, 'Guard Account'),
-                  statistic(300, 'Activities'),
+                  statistic(activities.length, 'Activities'),
                 ],
               ),
             ),

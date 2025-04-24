@@ -19,7 +19,6 @@ class History {
       connection.close();
       return false;
     } catch (error) {
-      print('Error fetching products: $error');
       return false; // return empty kalau error
     }
   }
@@ -27,7 +26,9 @@ class History {
   static Future<List<Map<String, dynamic>>> getHistorys() async {
     try {
       var connection = await DBConnection.connect();
-      var result = await connection.execute("SELECT* FROM history");
+      var result = await connection.execute(
+        "SELECT * FROM history INNER JOIN users ON users.id = history.id_user",
+      );
 
       List<Map<String, dynamic>> historys = [];
 
@@ -40,7 +41,6 @@ class History {
       connection.close();
       return historys;
     } catch (error) {
-      print('Error fetching products: $error');
       return []; // return empty kalau error
     }
   }

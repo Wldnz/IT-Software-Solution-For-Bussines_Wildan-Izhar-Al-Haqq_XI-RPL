@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:my_app/_Utils/products.dart';
 import 'package:my_app/components/navigation.dart';
 import 'package:my_app/pages/addProduct.dart';
-import 'package:my_app/pages/editProduct.dart';
 
 class ProductAdmin extends StatefulWidget {
   const ProductAdmin({super.key});
@@ -16,7 +15,6 @@ class _ProductAdminState extends State<ProductAdmin> {
 
   @override
   Widget build(BuildContext context) {
-    
     return Scaffold(
       // appBar: AppBar(
       //   title: Text('Manage Products'),
@@ -34,7 +32,7 @@ class _ProductAdminState extends State<ProductAdmin> {
                 Row(
                   spacing: 10.0,
                   children: [
-                    Container(
+                    SizedBox(
                       width: MediaQuery.of(context).size.width - 100,
                       child: TextField(
                         style: TextStyle(fontFamily: 'Poppins'),
@@ -49,9 +47,12 @@ class _ProductAdminState extends State<ProductAdmin> {
                           hintText: 'Search Product name here...',
                           // hintStyle: TextStyle(color: const Color(0xDFDFDFDF)),
                         ),
-                        onSubmitted: (String value){
+                        onSubmitted: (String value) {
                           setState(() {
-                            products = value.length > 0? Products.getProductByName(value) as Future : products = Products.getProducts();
+                            products =
+                                value.isNotEmpty
+                                    ? Products.getProductByName(value) as Future
+                                    : products = Products.getProducts();
                           });
                         },
                       ),
@@ -66,7 +67,7 @@ class _ProductAdminState extends State<ProductAdmin> {
                     ),
                   ],
                 ),
-                Container(
+                SizedBox(
                   width: MediaQuery.of(context).size.width,
                   // height: 200,
                   child: FutureBuilder(
@@ -89,14 +90,13 @@ class _ProductAdminState extends State<ProductAdmin> {
                               itemBuilder: (context, index) {
                                 var product = data[index];
                                 return InkWell(
-                                  child: ProductCard(
+                                  child: productCard(
                                     product['name'],
                                     int.parse(product['price']),
                                     int.parse(product['stock']),
                                     product['image_url'],
                                   ),
                                   onTap: () {
-
                                     Navigator.pop(context);
                                   },
                                 );
@@ -127,14 +127,14 @@ class _ProductAdminState extends State<ProductAdmin> {
     );
   }
 
-  Card ProductCard(String name, int price, int stock, String image_url) {
+  Card productCard(String name, int price, int stock, String imageUrl) {
     return Card(
       color: const Color.fromARGB(255, 241, 240, 240),
-      child: Container(
+      child: SizedBox(
         width: 400.0,
         child: Column(
           children: [
-            Image(image: NetworkImage(image_url), width: 380),
+            Image(image: NetworkImage(imageUrl), width: 380),
             Container(
               padding: EdgeInsets.all(15.0),
               child: Column(

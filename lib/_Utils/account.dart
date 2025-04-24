@@ -19,6 +19,7 @@ class Account {
       "email",
       "password",
       "phone",
+      "image_url",
       "role",
     ];
     try {
@@ -39,7 +40,6 @@ class Account {
       await connection.close(); // tutup koneksi
       return account;
     } catch (error) {
-      print('Error fetching account: $error');
       return {}; // return empty kalau error
     }
   }
@@ -62,7 +62,6 @@ class Account {
       History.createHistory('user with email=$email failed login');
       return false;
     } catch (error) {
-      print('Error fetching account: $error');
       return false; // return empty kalau error
     }
   }
@@ -74,11 +73,13 @@ class Account {
       var name = account['name'];
       var fullname = account['fullname'];
       var email = account['email'];
+      var image_url = account['image_url'];
+      var role = account['role'];
       var phone = account['phone'];
       var id = account['id'];
 
       var result = await connection.execute(
-        "UPDATE users set name='$name', fullname='$fullname',email='$email',phone='$phone' where id=$id",
+        "UPDATE users set name='$name', fullname='$fullname', email='$email', phone='$phone', role='$role', image_url='$image_url' where id=$id",
       );
 
       if (result.affectedRows > BigInt.zero) {
@@ -89,7 +90,6 @@ class Account {
       await connection.close(); // tutup koneksi
       return false;
     } catch (error) {
-      print('Error fetching products: $error');
       History.createHistory('Failed When Want To Update Profile');
       return false; // return empty kalau error
     }

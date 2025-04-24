@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:my_app/_Utils/product.dart';
+import 'package:my_app/_Utils/products.dart';
 import 'package:my_app/_Utils/transaction.dart';
 
 class AddTransaction extends StatefulWidget {
@@ -10,17 +10,27 @@ class AddTransaction extends StatefulWidget {
 }
 
 class _AddTransactionState extends State<AddTransaction> {
+  var transaction = Transaction(0, 0, 0, 'uncompleted');
+  List<Map<String, dynamic>> products = [];
 
-  var transaction = Transaction(0,0,0,'uncompleted');
+  @override
+  void setState(VoidCallback fn) {
+    _loadData();
+    super.setState(fn);
+  }
+
+  Future<void> _loadData() async {
+    products = await Products.getProducts();
+    print(products);
+    setState(() => {});
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _appBar(),
       body: Container(
-        margin: EdgeInsets.only(
-          top: 60.0
-        ),
+        margin: EdgeInsets.only(top: 60.0),
         padding: EdgeInsets.all(10.0),
         width: double.infinity,
         // height: 200.0,
@@ -28,22 +38,46 @@ class _AddTransactionState extends State<AddTransaction> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-             children: [
-               Text('List Products', style: TextStyle(
-                fontSize: 24.0,
-                fontFamily: 'Poppins',
-                fontWeight: FontWeight.bold)),
-                TextButton(onPressed: (){
-
-                }, child: Text('Add Product', style: TextStyle(
-                fontSize: 20.0,
-                color: Colors.blue.shade700,
-                fontFamily: 'Poppins',
-                fontWeight: FontWeight.normal)),)
-             ],
-           ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'List Products',
+                  style: TextStyle(
+                    fontSize: 24.0,
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                TextButton(
+                  onPressed: () {
+                    showModalBottomSheet(
+                      context: context,
+                      builder: (context) {
+                        return SizedBox(
+                          height: MediaQuery.of(context).size.height - 200,
+                          child: ListView.builder(
+                            itemCount: products.length,
+                            itemBuilder: (context, index) {
+                              return Center(child: Text('asw'));
+                            },
+                          ),
+                        );
+                      },
+                    );
+                  },
+                  child: Text(
+                    'Add Product +',
+                    style: TextStyle(
+                      fontSize: 16.0,
+                      color: Colors.blue.shade700,
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.normal,
+                    ),
+                  ),
+                ),
+              ],
+            ),
             Container(
               width: MediaQuery.of(context).size.width - 80,
               padding: EdgeInsets.all(10.0),
@@ -51,24 +85,29 @@ class _AddTransactionState extends State<AddTransaction> {
                 shrinkWrap: true,
                 physics: NeverScrollableScrollPhysics(),
                 children: [
-                 ProductCard('21212', 212, 12, 'https://my.alfred.edu/zoom/_images/foster-lake.jpg')
+                  productCard(
+                    '21212',
+                    212,
+                    12,
+                    'https://my.alfred.edu/zoom/_images/foster-lake.jpg',
+                  ),
                 ],
               ),
-            )
+            ),
           ],
         ),
       ),
     );
   }
 
-  Card ProductCard(String name, int price, int qty, String image_url) {
+  Card productCard(String name, int price, int qty, String imageUrl) {
     return Card(
       color: const Color.fromARGB(255, 241, 240, 240),
-      child: Container(
+      child: SizedBox(
         width: 340.0,
         child: Column(
           children: [
-            Image(image: NetworkImage(image_url), width: 320),
+            Image(image: NetworkImage(imageUrl), width: 320),
             Container(
               padding: EdgeInsets.all(15.0),
               child: Column(
@@ -110,37 +149,38 @@ class _AddTransactionState extends State<AddTransaction> {
     );
   }
 
-
- AppBar _appBar() {
+  AppBar _appBar() {
     return AppBar(
       title: Text('Add Transaction'),
       centerTitle: true,
       elevation: 0.0,
       automaticallyImplyLeading: false,
       leading: InkWell(
-        onTap : (){
-          showDialog(context: context, builder: (context) => AlertDialog(
-            title: Text('Are You Sure Want To Leave it?'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  Navigator.pop(context);
-                },
-                child: Text('Yes'),
-              ),
-              TextButton(
+        onTap: () {
+          showDialog(
+            context: context,
+            builder:
+                (context) => AlertDialog(
+                  title: Text('Are You Sure Want To Leave it?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        Navigator.pop(context);
+                      },
+                      child: Text('Yes'),
+                    ),
+                    TextButton(
                       onPressed: () {
                         Navigator.of(context).pop();
                       },
                       child: Text('Cancel'),
                     ),
-            ],
-          ));
+                  ],
+                ),
+          );
         },
-        child : Icon(Icons.arrow_back,
-        size : 30.0)
-        ,
+        child: Icon(Icons.arrow_back, size: 30.0),
       ),
     );
   }

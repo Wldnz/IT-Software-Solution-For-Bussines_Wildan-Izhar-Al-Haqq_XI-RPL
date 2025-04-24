@@ -1,13 +1,9 @@
-import 'dart:ffi';
 import 'dart:io';
 
-import 'package:cloudinary/cloudinary.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:my_app/_Utils/Products.dart';
 import 'package:my_app/_Utils/env.dart';
-import 'package:my_app/_Utils/product.dart';
-
 
 class EditProduct extends StatefulWidget {
   const EditProduct({super.key});
@@ -36,14 +32,13 @@ class _EditProductState extends State<EditProduct> {
         _imagePath = filePath;
         product['image'] = filePath;
       });
-    } catch (error) {
-      print(error);
-    }
+    } catch (error) {}
   }
 
   @override
   Widget build(BuildContext context) {
-    product = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    product =
+        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     return Scaffold(
       appBar: _appBar(product),
       body: ListView(
@@ -54,7 +49,7 @@ class _EditProductState extends State<EditProduct> {
             child: Column(
               children: [
                 SizedBox(height: 20.0),
-                Container(
+                SizedBox(
                   width: MediaQuery.of(context).size.width / 2 + 100,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -144,7 +139,7 @@ class _EditProductState extends State<EditProduct> {
               ],
             ),
           ),
-          SizedBox(height: 50,)
+          SizedBox(height: 50),
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -155,28 +150,26 @@ class _EditProductState extends State<EditProduct> {
             builder:
                 (ctx) => AlertDialog(
                   title: Text('Are You Sure Want To Change?'),
-                  content: Text('If you sure, please wait a few seconds (it depends on your internet)'),
+                  content: Text(
+                    'If you sure, please wait a few seconds (it depends on your internet)',
+                  ),
                   actions: [
                     TextButton(
-                      onPressed: () async{
+                      onPressed: () async {
                         Navigator.of(ctx).pop();
-                        if(_image != null){
-                          try{
+                        if (_image != null) {
+                          try {
                             var uploudImage = await cloudinary.upload(
-                            file: _image!.path,
-                            fileBytes: await _image!.readAsBytes(),
-                            folder: 'inventoryz',
-                            fileName: DateTime(20205).timeZoneName + _image!.name,
-                          );
-                          print('berhasil');
-                          product['image_url'] = uploudImage.secureUrl;
-                          }catch(error){
-                            print(error);
-                          }
-                        }                       
-                        if(await Products.updateProduct(product)){
-                          print('Succesfully');
+                              file: _image!.path,
+                              fileBytes: await _image!.readAsBytes(),
+                              folder: 'inventoryz',
+                              fileName:
+                                  DateTime(20205).timeZoneName + _image!.name,
+                            );
+                            product['image_url'] = uploudImage.secureUrl;
+                          } catch (error) {}
                         }
+                        if (await Products.updateProduct(product)) {}
                       },
                       child: Text('Save'),
                     ),
@@ -203,6 +196,7 @@ class _EditProductState extends State<EditProduct> {
     Map<String, dynamic> product, [
     icon,
   ]) {
+    // ignore: sized_box_for_whitespace
     return Container(
       width: MediaQuery.of(context).size.width - 30,
       child: Column(
@@ -224,7 +218,8 @@ class _EditProductState extends State<EditProduct> {
                 text: product[fieldName.toLowerCase()].toString(),
               ),
               keyboardType:
-                  fieldName.toLowerCase() == "stock" || fieldName.toLowerCase() == "price"
+                  fieldName.toLowerCase() == "stock" ||
+                          fieldName.toLowerCase() == "price"
                       ? TextInputType.number
                       : TextInputType.text,
               decoration: InputDecoration(
@@ -242,6 +237,11 @@ class _EditProductState extends State<EditProduct> {
                 hintText: "$hintText here...",
                 hintStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
               ),
+              onSubmitted: (String value) {
+                setState(() {
+                  product[fieldName.toLowerCase()];
+                });
+              },
               onChanged: (String value) {
                 if (product[fieldName.toLowerCase()] is int) {
                   product[fieldName.toLowerCase()] =
@@ -274,27 +274,31 @@ class _EditProductState extends State<EditProduct> {
             ),
             child: Icon(Icons.delete, color: Colors.white),
           ),
-          onTap: () async{
-            showDialog(context: context, builder: (context) => AlertDialog(
-              title: Text('Are You Sure Want To Delete That'),
-              content: Text('Please wait for a few seconds...'),
-              actions: [
-                TextButton(
-                      onPressed: () async{
-                        Navigator.of(context).pop();
-                        Products.deleteProduct(product['id']);
-                        Navigator.pop(context);
-                      },
-                      child: Text('Delete'),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: Text('Cancel'),
-                    ),
-              ],
-            ));
+          onTap: () async {
+            showDialog(
+              context: context,
+              builder:
+                  (context) => AlertDialog(
+                    title: Text('Are You Sure Want To Delete That'),
+                    content: Text('Please wait for a few seconds...'),
+                    actions: [
+                      TextButton(
+                        onPressed: () async {
+                          Navigator.of(context).pop();
+                          Products.deleteProduct(product['id']);
+                          Navigator.pop(context);
+                        },
+                        child: Text('Delete'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: Text('Cancel'),
+                      ),
+                    ],
+                  ),
+            );
           },
         ),
       ],

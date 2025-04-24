@@ -16,7 +16,6 @@ class _Login extends State<LoginPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     _isLogin();
     super.initState();
   }
@@ -27,7 +26,8 @@ class _Login extends State<LoginPage> {
   Future<void> _isLogin() async {
     var getAccount = await Account.getAccount();
     if (getAccount.isNotEmpty) {
-      Navigator.push(
+      Navigator.pushReplacement(
+        // ignore: use_build_context_synchronously
         context,
         MaterialPageRoute(builder: (context) => Dashboard()),
       );
@@ -41,23 +41,25 @@ class _Login extends State<LoginPage> {
       backgroundColor: Colors.white,
       body: SafeArea(
         child: ListView(
-          scrollDirection: Axis.vertical,
-          shrinkWrap: true,
           children: [
             Column(
-              spacing: 20.0,
+              spacing: 10.0,
               children: [
                 Container(
                   width: MediaQuery.of(context).size.width,
-                  height: 250.0,
-                  color: Colors.blue[400],
+                  height: 300.0,
+                  color: Colors.blue.shade400,
+                  child: Image(
+                    image: AssetImage('assets/images/a.jpg'),
+                    fit: BoxFit.fill,
+                  ),
                 ),
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   spacing: 5.0,
                   children: [
-                    Container(
+                    SizedBox(
                       width: MediaQuery.of(context).size.width - 20,
                       child: Text(
                         'SIGN IN',
@@ -69,7 +71,7 @@ class _Login extends State<LoginPage> {
                         textAlign: TextAlign.left,
                       ),
                     ),
-                    Container(
+                    SizedBox(
                       width: MediaQuery.of(context).size.width - 20,
                       child: Text(
                         'Email',
@@ -115,7 +117,7 @@ class _Login extends State<LoginPage> {
                       ),
                     ),
                     SizedBox(height: 10.0),
-                    Container(
+                    SizedBox(
                       width: MediaQuery.of(context).size.width - 20,
                       child: Text(
                         'Password',
@@ -204,7 +206,8 @@ class _Login extends State<LoginPage> {
                               : "Your Credentials is not match!";
                     });
                     if (isPassed) {
-                      Navigator.push(
+                      Navigator.pushReplacement(
+                        // ignore: use_build_context_synchronously
                         context,
                         MaterialPageRoute(builder: (context) => Dashboard()),
                       );

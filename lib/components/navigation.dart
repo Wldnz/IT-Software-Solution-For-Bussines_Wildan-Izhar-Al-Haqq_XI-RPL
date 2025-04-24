@@ -13,7 +13,7 @@ class NavigationBottomAdmin extends StatefulWidget {
 }
 
 class _NavigationBottomAdmin extends State<NavigationBottomAdmin> {
-  int _selectedIndex = Environment.getSelectedIndexNavigationBottom();
+  final int _selectedIndex = Environment.getSelectedIndexNavigationBottom();
 
   var destinationAttribute = [
     {
@@ -63,7 +63,7 @@ class _NavigationBottomAdmin extends State<NavigationBottomAdmin> {
         if (index == _selectedIndex) return;
         setState(() {
           Environment.setSelectedIndexNavigationBottom(index);
-          Navigator.push(
+          Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => pages[index]),
           );
