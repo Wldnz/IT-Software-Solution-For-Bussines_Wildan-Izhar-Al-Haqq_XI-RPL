@@ -66,6 +66,26 @@ class Account {
     }
   }
 
+  static Future<bool> addAccount(Map<String, dynamic> account) async {
+    try {
+      final connection = await DBConnection.connect();
+
+      var result = await connection.execute(
+        "INSERT INTO account VALUES(NULL,'${account['name']}','${account['fullname']}','${account['email']}','${account['phone']}','${account['password']}','${account['role']}'",
+      );
+
+      connection.close();
+      if (result.affectedRows > BigInt.zero) {
+        History.createHistory('Successfully Insert Account ${account['name']}');
+        return true;
+      }
+      return false;
+    } catch (error) {
+      History.createHistory('Failed When Want To Adding Account');
+      return false; // return empty kalau error
+    }
+  }
+
   static Future<bool> updateProfile(Map<String, dynamic> account) async {
     try {
       final connection = await DBConnection.connect();

@@ -5,29 +5,24 @@ import 'package:image_picker/image_picker.dart';
 import 'package:my_app/_Utils/account.dart';
 import 'package:my_app/_Utils/env.dart';
 
-class PersonalAccount extends StatefulWidget {
-  const PersonalAccount({super.key});
+class AddAccount extends StatefulWidget {
+  const AddAccount({super.key});
 
   @override
-  State<PersonalAccount> createState() => _PersonalAccountState();
+  State<AddAccount> createState() => _AddAccountState();
 }
 
-class _PersonalAccountState extends State<PersonalAccount> {
+class _AddAccountState extends State<AddAccount> {
   XFile? _image;
   File? _imagePath;
-  Map<String, dynamic> account = {};
-  @override
-  void initState() {
-    _loadData();
-    super.initState();
-  }
-
-  Future<void> _loadData() async {
-    account = await Account.getAccount();
-    setState(() {
-      account;
-    });
-  }
+  Map<String, dynamic> account = {
+    "name": "",
+    "fullname": "",
+    "email": "",
+    "phone": null,
+    "password": "",
+    "role": "staff",
+  };
 
   Future<void> selectImageFromGallery() async {
     try {
@@ -61,6 +56,7 @@ class _PersonalAccountState extends State<PersonalAccount> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.blueAccent.shade700,
         title: Text(
           'Personal Account Management',
           style: TextStyle(
@@ -75,8 +71,9 @@ class _PersonalAccountState extends State<PersonalAccount> {
         children: [
           Container(
             width: double.infinity,
+            height: MediaQuery.of(context).size.height - 80,
             padding: EdgeInsets.all(20.0),
-            child: Column(
+            child: ListView(
               children: [
                 SizedBox(
                   child: Column(
@@ -235,70 +232,125 @@ class _PersonalAccountState extends State<PersonalAccount> {
                         Icon(Icons.phone_enabled_rounded),
                         account,
                       ),
+                      _fieldPersonalAccount(
+                        'password',
+                        'Password',
+                        Icon(Icons.security_rounded),
+                        account,
+                      ),
+                      Column(
+                        children: [
+                          Text(
+                            "Role :",
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.normal,
+                              fontSize: 16.0,
+                            ),
+                          ),
+                          DropdownButton(
+                            value: account['role'],
+                            items: [
+                              DropdownMenuItem(
+                                value: 'staff',
+                                child: Text('staff'),
+                              ),
+                              DropdownMenuItem(
+                                value: 'admin',
+                                child: Text('admin'),
+                              ),
+                            ],
+                            onChanged: (value) => account['role'] = value,
+                          ),
+                        ],
+                      ),
                     ],
+                  ),
+                ),
+                SizedBox(height: 10),
+                Container(
+                  width: MediaQuery.of(context).size.width - 30,
+                  padding: EdgeInsets.all(10.0),
+                  decoration: BoxDecoration(
+                    color: Colors.blueAccent.shade400,
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  child: InkWell(
+                    onTap: () async {
+                      if (_image != null) {
+                        var uploudImage = await Environment.cloudinary.upload(
+                          file: _image!.path,
+                          fileBytes: await _image!.readAsBytes(),
+                          folder: 'inventoryz',
+                          fileName: "profile - ${DateTime(20205).timeZoneName}",
+                        );
+                        account['image_url'] = uploudImage.secureUrl;
+                      } else {
+                        account['image_url'] =
+                            "https://static.vecteezy.com/system/resources/thumbnails/036/744/532/small_2x/user-profile-icon-symbol-template-free-vector.jpg";
+                      }
+                      if (await Account.addAccount(account)) {
+                        await showDialog(
+                          context: context,
+                          builder:
+                              (context) => AlertDialog(
+                                title: Text(
+                                  'Failed Adding Account -${account['name']}',
+                                  style: TextStyle(fontSize: 16.0),
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: Text(
+                                      'OK',
+                                      style: TextStyle(
+                                        color: Colors.blue.shade700,
+                                        fontSize: 18.0,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                        );
+                      } else {
+                        await showDialog(
+                          context: context,
+                          builder:
+                              (context) => AlertDialog(
+                                title: Text(
+                                  'Sucessfully Adding Account -${account['name']}',
+                                  style: TextStyle(fontSize: 16.0),
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: Text(
+                                      'OK',
+                                      style: TextStyle(
+                                        color: Colors.blue.shade700,
+                                        fontSize: 18.0,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                        );
+                      }
+                    },
+                    child: Text(
+                      'Create Account',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Poppins',
+                        fontSize: 18.0,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
                   ),
                 ),
               ],
             ),
-          ),
-          Column(
-            children: [
-              Container(
-                width: MediaQuery.of(context).size.width - 30,
-                padding: EdgeInsets.all(10.0),
-                decoration: BoxDecoration(
-                  color: Colors.blueAccent.shade400,
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-                child: InkWell(
-                  onTap: () async {
-                    if (_image != null) {
-                      var uploudImage = await Environment.cloudinary.upload(
-                        file: _image!.path,
-                        fileBytes: await _image!.readAsBytes(),
-                        folder: 'inventoryz',
-                        fileName: "profile - ${DateTime(20205).timeZoneName}",
-                      );
-                      account['image_url'] = uploudImage.secureUrl;
-                    }
-                    if (await Account.updateProfile(account)) {
-                      await showDialog(
-                        context: context,
-                        builder:
-                            (context) => AlertDialog(
-                              title: Text(
-                                'Sucessfully update profile',
-                                style: TextStyle(fontSize: 16.0),
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  child: Text(
-                                    'OK',
-                                    style: TextStyle(
-                                      color: Colors.blue.shade700,
-                                      fontSize: 18.0,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                      );
-                    }
-                  },
-                  child: Text(
-                    'Save & Changes',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Poppins',
-                      fontSize: 18.0,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
-            ],
           ),
         ],
       ),

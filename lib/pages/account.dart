@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:my_app/components/navigation.dart';
 import 'package:my_app/pages/addProduct.dart';
+import 'package:my_app/pages/add_account.dart';
 import 'package:my_app/pages/personal_account.dart';
 
 class Account extends StatefulWidget {
@@ -57,6 +58,16 @@ class _AccountState extends State<Account> {
         ),
       ),
       bottomNavigationBar: NavigationBottomAdmin(),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => AddAccount()),
+          );
+        },
+        tooltip: 'Add Account',
+        child: Icon(Icons.add),
+      ),
     );
   }
 
