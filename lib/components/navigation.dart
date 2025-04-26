@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:my_app/_Utils/env.dart';
-import 'package:my_app/pages/Dashboard.dart';
-import 'package:my_app/pages/account.dart';
-import 'package:my_app/pages/productAdmin.dart';
-import 'package:my_app/pages/transaction.dart';
+import 'package:inventoryz/_Utils/env.dart';
+import 'package:inventoryz/pages/Dashboard.dart';
+import 'package:inventoryz/pages/account.dart';
+import 'package:inventoryz/pages/product_admin.dart';
+import 'package:inventoryz/pages/transaction.dart';
 
 class NavigationBottomAdmin extends StatefulWidget {
   const NavigationBottomAdmin({super.key});
@@ -55,7 +55,7 @@ class _NavigationBottomAdmin extends State<NavigationBottomAdmin> {
   ];
 
   var pages = [Dashboard(), ProductAdmin(), Transaction(), Account()];
-
+  @override
   Widget build(BuildContext context) {
     return NavigationBar(
       selectedIndex: _selectedIndex,

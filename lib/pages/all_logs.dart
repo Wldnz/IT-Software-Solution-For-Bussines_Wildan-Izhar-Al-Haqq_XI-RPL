@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:my_app/_Utils/history.dart';
-import 'package:my_app/components/notfound.dart';
+import 'package:inventoryz/_Utils/history.dart';
+import 'package:inventoryz/components/notfound.dart';
 
 class AllHistory extends StatefulWidget {
   const AllHistory({super.key});

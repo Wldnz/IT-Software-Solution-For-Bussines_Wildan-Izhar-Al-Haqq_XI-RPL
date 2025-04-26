@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:my_app/_Utils/transaction.dart';
-import 'package:my_app/pages/add_transaction.dart';
-import 'package:my_app/pages/edit_transaction.dart';
+import 'package:inventoryz/_Utils/env.dart';
+import 'package:inventoryz/_Utils/transaction.dart';
+import 'package:inventoryz/pages/add_transaction.dart';
 
 class ManageTransaction extends StatefulWidget {
   const ManageTransaction({super.key});
@@ -11,69 +11,121 @@ class ManageTransaction extends StatefulWidget {
 }
 
 class _ManageTransactionState extends State<ManageTransaction> {
-  var transaction = Transaction(0, 0, 0, 'uncompleted');
-  var transactions = Transaction.getTransaction();
+  List<Map<String, dynamic>> transactions = [];
+  int valueOrderBy = 3;
+  bool isGetDataTransactions = false;
+  @override
+  void initState() {
+    _loadData();
+    super.initState();
+  }
+
+  Future<void> _loadData() async {
+    transactions = await Transaction.getTransactionLast30Days();
+    isGetDataTransactions = true;
+    setState(() => {});
+  }
+
+  Future<void> changeOrderBy() async {
+    var orderBy = valueOrderBy > 2 ? "created_at" : "total_price";
+    orderBy += (valueOrderBy % 2) == 0 ? " ASC" : " DESC";
+    transactions = await Transaction.getTransactionLast30Days(orderBy);
+    isGetDataTransactions = true;
+    setState(() => {});
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _appBar(transaction),
-      body: SizedBox(
-        width: double.infinity,
-        height: double.infinity,
+      appBar: _appBar(),
+      body: Container(
+        padding: EdgeInsets.all(10.0),
+        width: MediaQuery.of(context).size.width,
+        height: MediaQuery.of(context).size.height,
         child: Column(
           children: [
             SizedBox(
-              width: MediaQuery.of(context).size.width,
-              height: 200,
-              child: FutureBuilder(
-                future: transactions,
-                builder: (context, snapShot) {
-                  if (snapShot.connectionState == ConnectionState.waiting) {
-                    return Center(child: Text('Fetching Data Transaction....'));
-                  } else if (snapShot.hasError) {
-                    return Center(child: Text('Error: ${snapShot.error}'));
-                  } else if (!snapShot.hasData || snapShot.data!.isEmpty) {
-                    return Center(
-                      child: Text('Sorry,We cant provide any Transaction'),
-                    );
-                  } else {
-                    List<Map<String, dynamic>> data = snapShot.data!;
-                    return SizedBox(
-                      width: 200.0,
-                      height: 200.90,
-                      child: Column(
-                        children: [
-                          ListView.builder(
-                            shrinkWrap: true,
-                            physics: NeverScrollableScrollPhysics(),
-                            itemCount: data.length,
-                            itemBuilder: (context, index) {
-                              var product = data[index];
-                              return InkWell(
-                                child: productCard(
-                                  BigInt.from(int.parse(product['created_at'])),
-                                  int.parse(product['total_price']),
-                                ),
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => EditTransaction(),
-                                      settings: RouteSettings(
-                                        arguments: product,
-                                      ),
-                                    ),
-                                  );
-                                },
-                              );
-                            },
+              height: 60,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Card(
+                    color: Colors.blueAccent.shade700,
+                    child: IconButton(
+                      onPressed: () {},
+                      icon: Icon(Icons.filter_alt_sharp, color: Colors.white),
+                      tooltip: 'Filter',
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Text('Order By '),
+                      DropdownButton(
+                        value: valueOrderBy,
+                        items: [
+                          DropdownMenuItem(
+                            value: 1,
+                            child: Text('Highest Price'),
+                          ),
+                          DropdownMenuItem(
+                            value: 2,
+                            child: Text('Lowest Price'),
+                          ),
+                          DropdownMenuItem(
+                            value: 3,
+                            child: Text('Recently Created'),
+                          ),
+                          DropdownMenuItem(
+                            value: 4,
+                            child: Text('Old Created'),
                           ),
                         ],
+                        onChanged: (int? value) async {
+                          valueOrderBy = value as int;
+                          transactions = [];
+                          isGetDataTransactions = false;
+                          setState(() => {});
+                          changeOrderBy();
+                        },
                       ),
-                    );
-                  }
-                },
+                    ],
+                  ),
+                  SizedBox(height: 30),
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height - 269,
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children:
+                            transactions.isEmpty
+                                ? [
+                                  Center(
+                                    child: Text(
+                                      isGetDataTransactions
+                                          ? "NOT FOUND"
+                                          : "Fetching Data...",
+                                    ),
+                                  ),
+                                ]
+                                : transactions
+                                    .map(
+                                      (transaction) => GestureDetector(
+                                        child: productCard(transaction),
+                                      ),
+                                    )
+                                    .toList(),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -92,53 +144,111 @@ class _ManageTransactionState extends State<ManageTransaction> {
     );
   }
 
-  AppBar _appBar(Transaction transaction) {
+  AppBar _appBar() {
     return AppBar(
-      title: Text('Available Transaction'),
+      backgroundColor: Colors.blueAccent.shade700,
+      title: Text(
+        'Manage Transactions',
+        style: TextStyle(
+          fontSize: 21.0,
+          fontFamily: 'Poppins',
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
+      ),
       centerTitle: true,
-      elevation: 0.0,
-      automaticallyImplyLeading: false,
-      leading: InkWell(
-        onTap: () {
-          Navigator.pop(context);
-        },
-        child: Icon(Icons.arrow_back, size: 30.0),
+      leading: IconButton(
+        onPressed: () => Navigator.pop(context),
+        icon: Icon(Icons.arrow_back, color: Colors.white, size: 30.0),
       ),
     );
   }
 
-  Card productCard(BigInt createdAt, int totalPrice) {
+  Card productCard(Map<String, dynamic> transaction) {
     var date =
-        DateTime.fromMillisecondsSinceEpoch(createdAt.toInt() * 1000).toLocal();
+        DateTime.fromMillisecondsSinceEpoch(
+          int.parse(transaction['created_at']),
+        ).toString();
+
+    Color statusColor = Colors.red;
+    if (transaction['status'] != 'rejected') {
+      statusColor =
+          transaction['status'] == "completed"
+              ? Colors.green
+              : const Color.fromARGB(255, 175, 159, 15);
+    }
     return Card(
-      color: const Color.fromARGB(255, 241, 240, 240),
+      color: Colors.white,
       child: SizedBox(
-        width: 180.0,
+        width: MediaQuery.of(context).size.width,
+        // height: 400.0,
         child: Column(
           children: [
-            Icon(Icons.list_alt_outlined, size: 100),
+            Icon(
+              Icons.list_alt_outlined,
+              size: 100,
+              color: Colors.blueAccent.shade400,
+            ),
             Container(
               padding: EdgeInsets.all(15.0),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 10,
+                spacing: 5.0,
                 children: [
                   Text(
-                    'Transaction created on $date',
+                    'Transaction id -${transaction['id']}',
                     style: TextStyle(
                       fontSize: 18.0,
-                      fontWeight: FontWeight.w400,
+                      fontWeight: FontWeight.normal,
                     ),
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        "Total Price : Rp. $totalPrice",
+                        "Total Price",
                         style: TextStyle(
                           fontSize: 16.0,
                           fontWeight: FontWeight.normal,
                         ),
+                        softWrap: true,
+                        overflow: TextOverflow.clip,
+                        maxLines: 2,
+                      ),
+                      Text(
+                        "Rp. ${Environment.numFormat.format(int.parse(transaction['total_price']))}",
+                        style: TextStyle(
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        softWrap: true,
+                        overflow: TextOverflow.clip,
+                        maxLines: 2,
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Status",
+                        style: TextStyle(
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.normal,
+                        ),
+                        softWrap: true,
+                        overflow: TextOverflow.clip,
+                        maxLines: 2,
+                      ),
+                      Text(
+                        transaction['status'],
+                        style: TextStyle(
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.bold,
+                          color: statusColor,
+                        ),
+                        softWrap: true,
+                        overflow: TextOverflow.clip,
+                        maxLines: 2,
                       ),
                     ],
                   ),

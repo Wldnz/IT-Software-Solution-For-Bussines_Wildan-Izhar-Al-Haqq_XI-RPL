@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:my_app/_Utils/account.dart';
-import 'package:my_app/pages/Dashboard.dart';
+import 'package:inventoryz/_Utils/account.dart';
+import 'package:inventoryz/pages/Dashboard.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -40,7 +40,7 @@ class _Login extends State<LoginPage> {
       // appBar: AppBar(title: Text('Login Page')),
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: ListView(
+        child: Wrap(
           children: [
             Column(
               spacing: 10.0,
@@ -71,6 +71,7 @@ class _Login extends State<LoginPage> {
                         textAlign: TextAlign.left,
                       ),
                     ),
+                    SizedBox(height: 5),
                     SizedBox(
                       width: MediaQuery.of(context).size.width - 20,
                       child: Text(
@@ -194,17 +195,19 @@ class _Login extends State<LoginPage> {
                     ),
                   ),
                   onTap: () async {
+                    if (loginData['email']!.isEmpty &&
+                        loginData['password']!.isEmpty) {
+                      return;
+                    }
                     bool isPassed = await Account.login(
                       loginData['email'] as String,
                       loginData['password'] as String,
                     );
-                    setState(() {
-                      _isMatch = isPassed;
-                      _messageLogin =
-                          isPassed
-                              ? "Your Credentials is match!"
-                              : "Your Credentials is not match!";
-                    });
+                    _isMatch = isPassed;
+                    _messageLogin =
+                        isPassed
+                            ? "Your Credentials is match!"
+                            : "Your Credentials is not match!";
                     if (isPassed) {
                       Navigator.pushReplacement(
                         // ignore: use_build_context_synchronously
@@ -212,6 +215,7 @@ class _Login extends State<LoginPage> {
                         MaterialPageRoute(builder: (context) => Dashboard()),
                       );
                     }
+                    setState(() {});
                   },
                 ),
               ],

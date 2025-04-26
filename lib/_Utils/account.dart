@@ -1,5 +1,5 @@
-import 'package:my_app/_Utils/history.dart';
-import 'package:my_app/_config/db.dart';
+import 'package:inventoryz/_Utils/history.dart';
+import 'package:inventoryz/_config/db.dart';
 import 'package:crypto/crypto.dart';
 import 'dart:convert'; // for utf8 encoding
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -49,7 +49,7 @@ class Account {
       final connection = await DBConnection.connect();
       var sha256Pass = sha256.convert(utf8.encode(password));
       var result = await connection.execute(
-        "SELECT * FROM users where email='$email' AND password='$sha256Pass'",
+        "SELECT * FROM users where email='$email' AND password='$sha256Pass' AND status='valid'",
       );
 
       if (result.rows.isNotEmpty) {
@@ -66,12 +66,41 @@ class Account {
     }
   }
 
+  static Future<bool> logout() async {
+    try {
+      await storage.delete(key: 'id');
+      return true;
+    } catch (error) {
+      return false; // return empty kalau error
+    }
+  }
+
+  static Future<dynamic> getTotalStaff() async {
+    try {
+      final connection = await DBConnection.connect();
+      var result = await connection.execute(
+        "SELECT COUNT(id) as total_staff FROM users WHERE role='staff'",
+      );
+
+      if (result.rows.isNotEmpty) {
+        await connection.close(); // tutup koneksi
+        var totalStaff = result.rows.first.assoc()['total_staff'];
+        return totalStaff;
+      }
+      await connection.close(); // tutup koneksi
+      return false;
+    } catch (error) {
+      return false; // return empty kalau error
+    }
+  }
+
   static Future<bool> addAccount(Map<String, dynamic> account) async {
     try {
       final connection = await DBConnection.connect();
+      var sha256Pass = sha256.convert(utf8.encode(account['password']));
 
       var result = await connection.execute(
-        "INSERT INTO account VALUES(NULL,'${account['name']}','${account['fullname']}','${account['email']}','${account['phone']}','${account['password']}','${account['role']}'",
+        "INSERT INTO users VALUES(NULL,'${account['name']}','${account['fullname']}','${account['email']}','${account['phone']}','$sha256Pass','${account['image_url']}','${account['role']}','valid');",
       );
 
       connection.close();
@@ -93,13 +122,13 @@ class Account {
       var name = account['name'];
       var fullname = account['fullname'];
       var email = account['email'];
-      var image_url = account['image_url'];
+      var imageUrl = account['image_url'];
       var role = account['role'];
       var phone = account['phone'];
       var id = account['id'];
 
       var result = await connection.execute(
-        "UPDATE users set name='$name', fullname='$fullname', email='$email', phone='$phone', role='$role', image_url='$image_url' where id=$id",
+        "UPDATE users set name='$name', fullname='$fullname', email='$email', phone='$phone', role='$role', image_url='$imageUrl' where id=$id",
       );
 
       if (result.affectedRows > BigInt.zero) {

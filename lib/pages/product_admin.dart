@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:my_app/_Utils/products.dart';
-import 'package:my_app/components/navigation.dart';
-import 'package:my_app/pages/addProduct.dart';
-import 'package:my_app/pages/editProduct.dart';
+import 'package:inventoryz/_Utils/products.dart';
+import 'package:inventoryz/components/navigation.dart';
+import 'package:inventoryz/pages/add_product.dart';
+import 'package:inventoryz/pages/edit_product.dart';
 
 class ProductAdmin extends StatefulWidget {
   const ProductAdmin({super.key});
@@ -12,7 +12,7 @@ class ProductAdmin extends StatefulWidget {
 }
 
 class _ProductAdminState extends State<ProductAdmin> {
-  var products = Products.getProducts() as Future;
+  var products = Products.getProducts(true) as Future;
 
   @override
   Widget build(BuildContext context) {

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:my_app/_Utils/history.dart';
-import 'package:my_app/_Utils/transaction.dart';
-import 'package:my_app/components/navigation.dart';
+import 'package:inventoryz/_Utils/account.dart';
+import 'package:inventoryz/_Utils/env.dart';
+import 'package:inventoryz/_Utils/history.dart';
+import 'package:inventoryz/_Utils/transaction.dart';
+import 'package:inventoryz/components/navigation.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -12,17 +14,33 @@ class Dashboard extends StatefulWidget {
 class _DashboardState extends State<Dashboard> {
   var transactions = [];
   var activities = [];
+  var totalStaff = "";
+  var totalTransactionPrice = 0.0;
+  bool showContent = false;
 
   @override
   void initState() {
-    _loadTransaction();
     super.initState();
+    _loadTransaction();
   }
 
   Future<void> _loadTransaction() async {
     transactions = await Transaction.getTransactionLast30Days();
     activities = await History.getHistorys();
+    totalStaff = await Account.getTotalStaff();
+    totalTransactionPrice = await Transaction.getTotalTrasanctionPrice();
+    showContent = true;
     setState(() {});
+  }
+
+  int getTotalTransactionCompleted() {
+    int totalTransactionCompleted = 0;
+    for (int i = 0; i < transactions.length; i++) {
+      if (transactions[i]['status'] == "completed") {
+        totalTransactionCompleted += 1;
+      }
+    }
+    return totalTransactionCompleted;
   }
 
   @override
@@ -34,47 +52,149 @@ class _DashboardState extends State<Dashboard> {
   Widget build(BuildContext context) {
     return Scaffold(
       // appBar: AppBar(title: Text('hall0o')),
-      body: Container(
-        width: MediaQuery.of(context).size.width,
-        padding: const EdgeInsets.all(10.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: 60),
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Text(
-                "Welcome Back, Wildan",
-                style: TextStyle(
-                  fontFamily: 'Poppins',
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.normal,
+      body:
+          !showContent
+              ? Center(
+                child: Text(
+                  "Fetching data...",
+                  style: TextStyle(color: Colors.blueAccent, fontSize: 30.0),
+                ),
+              )
+              : Container(
+                width: MediaQuery.of(context).size.width,
+                padding: const EdgeInsets.all(10.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: 60),
+                    Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Text(
+                        "Welcome Back, Wildan",
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 20.0,
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                    ),
+                    // Text(
+                    //   "We have build and show the statistic about the products and it will help your productivitas.",
+                    //   style: TextStyle(
+                    //     fontFamily: 'Poppins',
+                    //     fontSize: 16.0,
+                    //     fontWeight: FontWeight.normal,
+                    //   ),
+                    // ),
+                    // SizedBox(height: 20.0),
+                    transactions.isEmpty &&
+                            activities.isEmpty &&
+                            totalStaff.isEmpty
+                        ? Center(child: Text('Fetching Data...'))
+                        : SizedBox(
+                          height: 140,
+                          child: ListView(
+                            scrollDirection: Axis.horizontal,
+                            children: [
+                              statistic(transactions.length, 'Transaction'),
+                              statistic(int.parse(totalStaff), 'Guard Account'),
+                              statistic(activities.length, 'Activities'),
+                            ],
+                          ),
+                        ),
+                    SizedBox(
+                      // height: 120.0,
+                      child: Card(
+                        child: Padding(
+                          padding: const EdgeInsets.only(
+                            top: 15.0,
+                            left: 10.0,
+                            right: 10.0,
+                            bottom: 10.0,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Currently Balance",
+                                style: TextStyle(
+                                  fontSize: 16.0,
+                                  fontWeight: FontWeight.normal,
+                                  fontFamily: 'Poppins',
+                                ),
+                              ),
+                              SizedBox(height: 20),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.account_balance_wallet,
+                                        color: Colors.blueAccent.shade400,
+                                      ),
+                                      SizedBox(width: 10),
+                                      Text(
+                                        "Balance",
+                                        style: TextStyle(
+                                          fontSize: 14.0,
+                                          fontWeight: FontWeight.normal,
+                                          fontFamily: 'Poppins',
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Text(
+                                    "Rp. ${Environment.numFormat.format(totalTransactionPrice)}",
+                                    style: TextStyle(
+                                      fontSize: 14.0,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: 'Poppins',
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 10),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.check_box,
+                                        color: Colors.blueAccent,
+                                      ),
+                                      SizedBox(width: 10),
+                                      Text(
+                                        "Total Trasaction (Completed)",
+                                        style: TextStyle(
+                                          fontSize: 14.0,
+                                          fontWeight: FontWeight.normal,
+                                          fontFamily: 'Poppins',
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Text(
+                                    "(${getTotalTransactionCompleted().toString()})",
+                                    style: TextStyle(
+                                      fontSize: 12.0,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: 'Poppins',
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ),
-            // Text(
-            //   "We have build and show the statistic about the products and it will help your productivitas.",
-            //   style: TextStyle(
-            //     fontFamily: 'Poppins',
-            //     fontSize: 16.0,
-            //     fontWeight: FontWeight.normal,
-            //   ),
-            // ),
-            // SizedBox(height: 20.0),
-            SizedBox(
-              height: 140,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: [
-                  statistic(transactions.length, 'Transaction'),
-                  statistic(5, 'Guard Account'),
-                  statistic(activities.length, 'Activities'),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
       bottomNavigationBar: NavigationBottomAdmin(),
       floatingActionButton: FloatingActionButton(
         onPressed: () => {},

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:my_app/components/navigation.dart';
-import 'package:my_app/pages/addProduct.dart';
-import 'package:my_app/pages/add_account.dart';
-import 'package:my_app/pages/personal_account.dart';
+import 'package:inventoryz/components/navigation.dart';
+import 'package:inventoryz/pages/add_account.dart';
+import 'package:inventoryz/pages/login.dart';
+import 'package:inventoryz/pages/personal_account.dart';
+import 'package:inventoryz/_Utils/account.dart' as akun;
 
 class Account extends StatefulWidget {
   const Account({super.key});
@@ -33,28 +34,38 @@ class _AccountState extends State<Account> {
         padding: EdgeInsets.all(10.0),
         width: double.infinity,
         height: double.infinity,
-        child: Column(
-          children: [
-            _card(
-              Icon(
-                Icons.account_circle_rounded,
-                color: Colors.blueAccent.shade400,
-                size: 60,
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              _card(
+                Icon(
+                  Icons.account_circle_rounded,
+                  color: Colors.blueAccent.shade400,
+                  size: 60,
+                ),
+                'Manage Personal Account',
+                PersonalAccount(),
               ),
-              'Manage Personal Account',
-              PersonalAccount(),
-            ),
-            SizedBox(height: 20.0),
-            _card(
-              Icon(
-                Icons.account_circle_rounded,
-                color: Colors.blueAccent.shade400,
-                size: 60,
+              SizedBox(height: 20.0),
+              _card(
+                Icon(
+                  Icons.account_circle_rounded,
+                  color: Colors.blueAccent.shade400,
+                  size: 60,
+                ),
+                "Manage Guard Account (Can't Access Right Now)",
               ),
-              'Manage Guard Account',
-              AddProduct(),
-            ),
-          ],
+              SizedBox(height: 20.0),
+              _cardLogout(
+                Icon(
+                  Icons.login_outlined,
+                  color: Colors.blueAccent.shade400,
+                  size: 60,
+                ),
+                "Log Out?",
+              ),
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: NavigationBottomAdmin(),
@@ -71,17 +82,19 @@ class _AccountState extends State<Account> {
     );
   }
 
-  SizedBox _card(Icon icon, String name, StatefulWidget page) {
+  SizedBox _card(Icon icon, String name, [page]) {
     return SizedBox(
       width: 340.0,
       height: 200.0,
       child: Card(
         child: InkWell(
           onTap:
-              () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => page),
-              ),
+              page != null
+                  ? () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => page),
+                  )
+                  : () => {},
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -95,6 +108,79 @@ class _AccountState extends State<Account> {
                   fontWeight: FontWeight.w400,
                   fontSize: 18.0,
                 ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  SizedBox _cardLogout(Icon icon, String name) {
+    return SizedBox(
+      width: 340.0,
+      height: 200.0,
+      child: Card(
+        child: InkWell(
+          onTap: () async {
+            showDialog(
+              context: context,
+              builder:
+                  (context) => AlertDialog(
+                    title: Text("Are you sure want to sign out?"),
+                    actions: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: Text(
+                              'Cancel',
+                              style: TextStyle(
+                                fontSize: 16.0,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () async {
+                              await akun.Account.logout();
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => LoginPage(),
+                                ),
+                              );
+                              // Navigator.pop(context);
+                            },
+                            child: Text(
+                              'Sign Out',
+                              style: TextStyle(fontSize: 16.0),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+            );
+          },
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              icon,
+              SizedBox(height: 20.0),
+              Text(
+                name,
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.w400,
+                  fontSize: 18.0,
+                ),
+                textAlign: TextAlign.center,
               ),
             ],
           ),

@@ -1,5 +1,6 @@
 import 'package:cloudinary/cloudinary.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:intl/intl.dart';
 
 class Environment {
   static String host = dotenv.get('host');
@@ -15,4 +16,5 @@ class Environment {
   static int _index = 0;
   static int getSelectedIndexNavigationBottom() => _index;
   static int setSelectedIndexNavigationBottom(int index) => _index = index;
+  static final numFormat = NumberFormat.decimalPattern('ID-id');
 }

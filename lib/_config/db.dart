@@ -1,4 +1,4 @@
-import 'package:my_app/_Utils/env.dart';
+import 'package:inventoryz/_Utils/env.dart';
 import 'package:mysql_client/mysql_client.dart';
 
 class DBConnection {

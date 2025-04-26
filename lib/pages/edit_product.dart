@@ -2,8 +2,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:my_app/_Utils/Products.dart';
-import 'package:my_app/_Utils/env.dart';
+import 'package:inventoryz/_Utils/Products.dart';
+import 'package:inventoryz/_Utils/env.dart';
+import 'package:inventoryz/pages/product_admin.dart';
 
 class EditProduct extends StatefulWidget {
   const EditProduct({super.key});
@@ -32,7 +33,24 @@ class _EditProductState extends State<EditProduct> {
         _imagePath = filePath;
         product['image'] = filePath;
       });
-    } catch (error) {}
+    } catch (error) {
+      showDialog(
+        context: context,
+        builder:
+            (context) => AlertDialog(
+              title: Text('Something Error When Opening Gallery...'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text(
+                    'Close',
+                    style: TextStyle(fontSize: 16.0, fontFamily: "Poppins"),
+                  ),
+                ),
+              ],
+            ),
+      );
+    }
   }
 
   @override
@@ -40,6 +58,7 @@ class _EditProductState extends State<EditProduct> {
     product =
         ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: _appBar(product),
       body: ListView(
         children: [
@@ -167,9 +186,65 @@ class _EditProductState extends State<EditProduct> {
                                   DateTime(20205).timeZoneName + _image!.name,
                             );
                             product['image_url'] = uploudImage.secureUrl;
-                          } catch (error) {}
+                          } catch (error) {
+                            showDialog(
+                              context: context,
+                              builder:
+                                  (context) => AlertDialog(
+                                    title: Text(
+                                      'Something Error When Opening Gallery...',
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        child: Text(
+                                          'Close',
+                                          style: TextStyle(
+                                            fontSize: 16.0,
+                                            fontFamily: "Poppins",
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                            );
+                          }
                         }
-                        if (await Products.updateProduct(product)) {}
+                        if (await Products.updateProduct(product)) {
+                          await showDialog(
+                            context: context,
+                            builder:
+                                (context) => AlertDialog(
+                                  title: Text("Successfully Update Product"),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(context),
+                                      child: Text(
+                                        "Oke",
+                                        style: TextStyle(fontSize: 16.0),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                          );
+                        } else {
+                          await showDialog(
+                            context: context,
+                            builder:
+                                (context) => AlertDialog(
+                                  title: Text("Failed Update Product"),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(context),
+                                      child: Text(
+                                        "Oke",
+                                        style: TextStyle(fontSize: 16.0),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                          );
+                        }
                       },
                       child: Text('Save'),
                     ),
@@ -284,9 +359,54 @@ class _EditProductState extends State<EditProduct> {
                     actions: [
                       TextButton(
                         onPressed: () async {
-                          Navigator.of(context).pop();
-                          Products.deleteProduct(product['id']);
-                          Navigator.pop(context);
+                          if (await Products.deleteProduct(product['id'])) {
+                            await showDialog(
+                              context: context,
+                              builder:
+                                  (context) => AlertDialog(
+                                    title: Text("Successfully Delete Product"),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                          Navigator.pop(context);
+                                          Navigator.pushReplacement(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder:
+                                                  (context) => ProductAdmin(),
+                                            ),
+                                          );
+                                        },
+                                        child: Text(
+                                          "Oke",
+                                          style: TextStyle(fontSize: 16.0),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                            );
+                          } else {
+                            await showDialog(
+                              context: context,
+                              builder:
+                                  (context) => AlertDialog(
+                                    title: Text("Failed Delete Product"),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                          Navigator.pop(context);
+                                        },
+                                        child: Text(
+                                          "Oke",
+                                          style: TextStyle(fontSize: 16.0),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                            );
+                          }
                         },
                         child: Text('Delete'),
                       ),

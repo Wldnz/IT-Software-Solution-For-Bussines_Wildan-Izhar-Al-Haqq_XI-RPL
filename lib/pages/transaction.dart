@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:my_app/components/navigation.dart';
-import 'package:my_app/pages/all_logs.dart';
-import 'package:my_app/pages/manage_transaction.dart';
+import 'package:inventoryz/components/navigation.dart';
+import 'package:inventoryz/pages/all_logs.dart';
+import 'package:inventoryz/pages/manage_transaction.dart';
 
 class Transaction extends StatefulWidget {
   const Transaction({super.key});
@@ -31,20 +31,22 @@ class _TransactionState extends State<Transaction> {
         padding: EdgeInsets.only(top: 10.0, bottom: 10.0),
         width: double.infinity,
         height: double.infinity,
-        child: Column(
-          children: [
-            _card(
-              AssetImage('assets/images/transaction-history.png'),
-              'Manage Transaction',
-              ManageTransaction(),
-            ),
-            SizedBox(height: 10.0),
-            _card(
-              AssetImage('assets/images/transaction-history.png'),
-              'Check Logs',
-              AllHistory(),
-            ),
-          ],
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              _card(
+                AssetImage('assets/images/transaction-history.png'),
+                'Manage Transaction',
+                ManageTransaction(),
+              ),
+              SizedBox(height: 10.0),
+              _card(
+                AssetImage('assets/images/transaction-history.png'),
+                'Check Logs',
+                AllHistory(),
+              ),
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: NavigationBottomAdmin(),

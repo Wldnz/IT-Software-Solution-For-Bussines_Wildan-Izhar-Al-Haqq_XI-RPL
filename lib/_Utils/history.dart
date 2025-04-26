@@ -1,5 +1,5 @@
-import 'package:my_app/_Utils/account.dart';
-import 'package:my_app/_config/db.dart';
+import 'package:inventoryz/_Utils/account.dart';
+import 'package:inventoryz/_config/db.dart';
 
 class History {
   static Future<bool> createHistory(String action) async {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:my_app/_Utils/products.dart';
-import 'package:my_app/components/navigation.dart';
-import 'package:my_app/pages/addProduct.dart';
+import 'package:inventoryz/_Utils/products.dart';
+import 'package:inventoryz/components/navigation.dart';
+import 'package:inventoryz/pages/add_product.dart';
 
 class ProductAdmin extends StatefulWidget {
   const ProductAdmin({super.key});

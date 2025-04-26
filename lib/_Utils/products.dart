@@ -1,11 +1,15 @@
-import 'package:my_app/_Utils/history.dart';
-import 'package:my_app/_config/db.dart';
+import 'package:inventoryz/_Utils/history.dart';
+import 'package:inventoryz/_config/db.dart';
 
 class Products {
-  static Future<List<Map<String, dynamic>>> getProducts() async {
+  static Future<List<Map<String, dynamic>>> getProducts([
+    bool showSoldStock = false,
+  ]) async {
     try {
       final connection = await DBConnection.connect();
-      var result = await connection.execute('SELECT * FROM products');
+      var result = await connection.execute(
+        "SELECT * FROM products where status='public' ${!showSoldStock ? "AND stock != 0" : ""};",
+      );
 
       List<Map<String, dynamic>> products = [];
 
@@ -58,7 +62,7 @@ class Products {
       var stock = product['stock'];
       var imageUrl = product['image_url'];
       var result = await connection.execute(
-        "UPDATE products SET name='$name', description='$description', price='$price', stock='$stock', image_url='$imageUrl' where id='$id'",
+        "UPDATE products SET name='$name', description='$description', price='$price', stock='$stock', image_url='$imageUrl', status='public' where id='$id'",
       );
 
       if (result.affectedRows > BigInt.zero) {
@@ -80,7 +84,7 @@ class Products {
     try {
       final connection = await DBConnection.connect();
       var result = await connection.execute(
-        "delete from products where id='$id'",
+        "update products set status='private' where id='$id'",
       );
 
       if (result.affectedRows > BigInt.zero) {
@@ -103,7 +107,7 @@ class Products {
     try {
       final connection = await DBConnection.connect();
       var result = await connection.execute(
-        "select * from products where name='$name' OR name LIKE '%$name%' ",
+        "select * from products where name='$name' OR name LIKE '%$name%' AND status='public' ",
       );
 
       List<Map<String, dynamic>> products = [];
