@@ -1,4 +1,3 @@
-import 'package:cloudinary_url_gen/transformation/effect/effect_actions.dart';
 import 'package:flutter/material.dart';
 import 'package:inventoryz/_Utils/account.dart';
 import 'package:inventoryz/_Utils/products.dart';
@@ -738,10 +737,6 @@ class _AddTransactionState extends State<AddTransaction> {
           ),
         ),
       ),
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: () => {},
-      //   child: Icon(Icons.check),
-      // ),
     );
   }
 

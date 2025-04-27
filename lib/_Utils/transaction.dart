@@ -127,4 +127,60 @@ class Transaction {
       return []; // return empty kalau error
     }
   }
+
+  static Future<List<Map<String, dynamic>>> getDetailTransactionById(
+    dynamic id,
+  ) async {
+    try {
+      final connection = await DBConnection.connect();
+      var result = await connection.execute(
+        "SELECT o.id as id_order, p.id as id_product, p.name, p.image_url, o.price, o.quantity FROM orders o INNER JOIN products p ON o.id_product = p.id WHERE o.id_transaction = '$id';",
+      );
+
+      List<Map<String, dynamic>> orderProducts = [];
+
+      for (var row in result.rows) {
+        orderProducts.add(row.assoc()); // ambil data per row dalam bentuk Map
+      }
+
+      await connection.close(); // tutup koneksi
+
+      return orderProducts;
+    } catch (error) {
+      return []; // return empty kalau error
+    }
+  }
+
+  static Future<List<Map<String, dynamic>>> getTrasactionByFilters(
+    String status,
+    String price,
+    String lastPublish,
+  ) async {
+    var unixByPublishDate =
+        DateTime.now().millisecondsSinceEpoch -
+        (60 *
+            60 *
+            24 *
+            (lastPublish.isNotEmpty
+                ? int.parse(lastPublish.split(" ")[0])
+                : 0) *
+            1000);
+    String sql =
+        "SELECT * FROM transactions WHERE total_price >= 0 ${status.isNotEmpty ? "AND status='$status'" : ""} ${lastPublish.isNotEmpty ? "AND created_at >= $unixByPublishDate" : ""} ORDER BY created_at DESC${price.contains("Highest") ? ", total_price DESC" : ", total_price ASC"};";
+    try {
+      final connection = await DBConnection.connect();
+      final result = await connection.execute(sql);
+      List<Map<String, dynamic>> products = [];
+      if (result.rows.isNotEmpty) {
+        for (var row in result.rows) {
+          products.add(row.assoc());
+        }
+      }
+      await connection.close();
+      return products;
+    } catch (error) {
+      print(error);
+      return [];
+    }
+  }
 }

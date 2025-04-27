@@ -22,6 +22,8 @@ class _PersonalAccountState extends State<PersonalAccount> {
     super.initState();
   }
 
+  bool isChange = false;
+
   Future<void> _loadData() async {
     account = await Account.getAccount();
     setState(() {
@@ -36,10 +38,10 @@ class _PersonalAccountState extends State<PersonalAccount> {
       );
       if (selectedImage == null) return;
       File filePath = File(selectedImage.path);
-      setState(() {
-        _image = selectedImage;
-        _imagePath = filePath;
-      });
+      _image = selectedImage;
+      _imagePath = filePath;
+      isChange = true;
+      setState(() => {});
     } catch (error) {
       showDialog(
         context: context,
@@ -67,10 +69,10 @@ class _PersonalAccountState extends State<PersonalAccount> {
       );
       if (selectedImage == null) return;
       File filePath = File(selectedImage.path);
-      setState(() {
-        _image = selectedImage;
-        _imagePath = filePath;
-      });
+      isChange = true;
+      _image = selectedImage;
+      _imagePath = filePath;
+      setState(() => {});
     } catch (error) {
       showDialog(
         context: context,
@@ -300,6 +302,33 @@ class _PersonalAccountState extends State<PersonalAccount> {
                   ),
                   child: InkWell(
                     onTap: () async {
+                      if (!isChange) return;
+                      showDialog(
+                        context: context,
+                        builder:
+                            (context) => AlertDialog(
+                              title: Text(
+                                'Updating Profile..',
+                                style: TextStyle(fontSize: 16.0),
+                              ),
+                              content: Text(
+                                "Please wait... (if u change the image it will take more time...)",
+                                style: TextStyle(fontSize: 16.0),
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: Text(
+                                    'OK',
+                                    style: TextStyle(
+                                      color: Colors.blue.shade700,
+                                      fontSize: 18.0,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                      );
                       if (_image != null) {
                         var uploudImage = await Environment.cloudinary.upload(
                           file: _image!.path,
@@ -310,12 +339,36 @@ class _PersonalAccountState extends State<PersonalAccount> {
                         account['image_url'] = uploudImage.secureUrl;
                       }
                       if (await Account.updateProfile(account)) {
+                        isChange = false;
                         await showDialog(
                           context: context,
                           builder:
                               (context) => AlertDialog(
                                 title: Text(
                                   'Sucessfully update profile',
+                                  style: TextStyle(fontSize: 16.0),
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: Text(
+                                      'OK',
+                                      style: TextStyle(
+                                        color: Colors.blue.shade700,
+                                        fontSize: 18.0,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                        );
+                      } else {
+                        await showDialog(
+                          context: context,
+                          builder:
+                              (context) => AlertDialog(
+                                title: Text(
+                                  'Failed When Updating Profile..',
                                   style: TextStyle(fontSize: 16.0),
                                 ),
                                 actions: [
@@ -392,7 +445,10 @@ class _PersonalAccountState extends State<PersonalAccount> {
             hintText: "input your $fieldname here...",
             hintStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
           ),
-          onChanged: (String value) => account[fieldname] = value,
+          onChanged: (String value) {
+            account[fieldname] = value;
+            isChange = true;
+          },
         ),
       ],
     );

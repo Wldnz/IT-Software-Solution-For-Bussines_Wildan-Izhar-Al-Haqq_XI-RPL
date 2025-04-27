@@ -124,4 +124,37 @@ class Products {
       return [];
     }
   }
+
+  static Future<List<Map<String, dynamic>>> getProductByFilters(
+    String category,
+    String stock,
+    String lastPublish,
+  ) async {
+    var unixByPublishDate =
+        DateTime.now().millisecondsSinceEpoch -
+        (60 *
+            60 *
+            24 *
+            (lastPublish.isNotEmpty
+                ? int.parse(lastPublish.split(" ")[0])
+                : 0) *
+            1000);
+    String sql =
+        "SELECT * FROM products WHERE stock${stock.contains("Sold") ? " ='0'" : " > 0"} ${category.isNotEmpty ? "AND category='$category'" : ""} ${lastPublish.isNotEmpty ? "AND created_at >= $unixByPublishDate" : ""} ORDER BY created_at DESC${stock.contains("Highest") || stock.contains("Lowest") ? ", ${stock.contains("Highest") ? "stock DESC" : "stock ASC"}" : ""};";
+    try {
+      print(sql);
+      final connection = await DBConnection.connect();
+      final result = await connection.execute(sql);
+      List<Map<String, dynamic>> products = [];
+      if (result.rows.isNotEmpty) {
+        for (var row in result.rows) {
+          products.add(row.assoc());
+        }
+      }
+      await connection.close();
+      return products;
+    } catch (error) {
+      return [];
+    }
+  }
 }

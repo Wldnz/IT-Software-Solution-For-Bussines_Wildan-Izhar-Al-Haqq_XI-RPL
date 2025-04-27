@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:inventoryz/_Utils/products.dart';
+import 'package:inventoryz/components/FilterDialog.dart';
 import 'package:inventoryz/components/navigation.dart';
 import 'package:inventoryz/pages/add_product.dart';
 import 'package:inventoryz/pages/edit_product.dart';
@@ -13,6 +14,13 @@ class ProductAdmin extends StatefulWidget {
 
 class _ProductAdminState extends State<ProductAdmin> {
   var products = Products.getProducts(true) as Future;
+
+  Map<String, dynamic> selectedFilter = {
+    "category": "",
+    "price": {"minimun": 0.0, "maximun": null},
+    "stock": "",
+    "created_at": "",
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +71,28 @@ class _ProductAdminState extends State<ProductAdmin> {
                       height: 50.0,
                       child: Card(
                         color: Colors.blueAccent.shade400,
-                        child: Icon(Icons.filter_alt, color: Colors.white),
+                        child: IconButton(
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder:
+                                  (_) => FilterDialogProduct(
+                                    selectedFilter: selectedFilter,
+                                    onSubmit: (selectedFilter) {
+                                      this.selectedFilter = selectedFilter;
+                                      products = Products.getProductByFilters(
+                                        selectedFilter["category"],
+                                        selectedFilter["stock"],
+                                        selectedFilter["created_at"],
+                                      );
+                                      setState(() {});
+                                    },
+                                  ),
+                            );
+                          },
+                          icon: Icon(Icons.filter_alt),
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ],
@@ -171,7 +200,13 @@ class _ProductAdminState extends State<ProductAdmin> {
                         "$stock Pcs",
                         style: TextStyle(
                           fontSize: 16.0,
-                          fontWeight: FontWeight.normal,
+                          fontWeight: FontWeight.bold,
+                          color:
+                              stock >= 5
+                                  ? Colors.green
+                                  : stock > 0
+                                  ? Colors.yellow.shade900
+                                  : Colors.red,
                         ),
                       ),
                     ],
